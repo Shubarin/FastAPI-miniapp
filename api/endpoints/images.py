@@ -1,35 +1,25 @@
 import base64
-import datetime
 import imghdr
-import os
 from io import BytesIO
 
 from fastapi import APIRouter, Form, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-
 from PIL import Image as im
-from pydantic.main import BaseModel
 from sqlalchemy import desc
 
 from data import db_session
 from data.images import Image
-from settings import DATABASES, STATIC_ROOT, VALID_EXTENSIONS
-from utils.filename import get_filenames
+from settings import DATABASES, VALID_EXTENSIONS
+from utils.converter_img_to_base64_str import img_to_base64_str
 
 router = APIRouter()
 
 
-class Item(BaseModel):
-    original: str
-    negative: str
-    pub_date: datetime.datetime
-
-
 @router.get("/get_last_images", status_code=status.HTTP_200_OK)
 async def get_last_images():
-    db_sess = db_session.global_init(**DATABASES)
-    last_images = db_sess.query(Image).order_by(desc(Image.pub_date)).limit(3).all()
+    db = db_session.global_init(**DATABASES)
+    last_images = db.query(Image).order_by(desc(Image.pub_date)).limit(3).all()
     json_compatible_item_data = jsonable_encoder(last_images)
     return JSONResponse(status_code=status.HTTP_200_OK,
                         content={"last_images": json_compatible_item_data})
@@ -42,16 +32,16 @@ def negative_image(base64_image: str = Form(...)):
     if extension not in VALID_EXTENSIONS:
         return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                             content={'error': 'bad file extensions'})
-    original_fn, negative_fn = get_filenames(extension)
     original = im.open(BytesIO(decoded_string))
     inverted = im.eval(original, lambda x: 255 - x)
-    original.save(os.path.join(STATIC_ROOT, original_fn))
-    inverted.save(os.path.join(STATIC_ROOT, negative_fn))
-    with open(os.path.join(STATIC_ROOT, negative_fn), 'rb') as image_read:
-        image_64_encode = base64.b64encode(image_read.read())
     db_sess = db_session.global_init(**DATABASES)
-    image = Image(original=original_fn, negative=negative_fn)
+    original = img_to_base64_str(original, extension)
+    inverted = img_to_base64_str(inverted, extension)
+    image = Image(original=original, negative=inverted, type=extension)
     db_sess.add(image)
     db_sess.commit()
     return JSONResponse(status_code=status.HTTP_201_CREATED,
-                        content=str(image_64_encode))
+                        content={"id": image.id,
+                                 "type": image.type,
+                                 "original": image.original,
+                                 "negative": image.negative})
