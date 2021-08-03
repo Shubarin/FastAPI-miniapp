@@ -14,8 +14,6 @@ DATABASES = {
 }
 
 API_PREFIX = '/api/v1'
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 VALID_EXTENSIONS = {
     'jpg',

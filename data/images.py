@@ -14,6 +14,7 @@ class Image(SqlAlchemyBase):
     negative = sqlalchemy.Column(sqlalchemy.String, name='negative image')
     pub_date = sqlalchemy.Column(sqlalchemy.DateTime, name='pub_date',
                                  unique=True, default=datetime.datetime.utcnow)
+    type = sqlalchemy.Column(sqlalchemy.String, name='image type')
 
     def __repr__(self):
         return f'<Image> {self.id} ({self.pub_date})'
