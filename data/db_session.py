@@ -10,15 +10,22 @@ SqlAlchemyBase = dec.declarative_base()
 
 
 def global_init(*args, **kwargs) -> Session:
+    """
+    Initializes a session in the database.
+    Adds new models when the app is launched for the first time.
+    :param args:
+    :param kwargs:
+    :return:
+    """
     db_engine, db_user, db_password, db_host, db_port, db_name = kwargs.values()
 
     if not db_name or not db_name.strip():
-        raise Exception("Необходимо указать файл базы данных.")
+        raise Exception("Please specify the name of the database.")
 
     sqlalchemy_database_url = '{}://{}:{}@{}:{}/{}'.format(
         db_engine, db_user, db_password, db_host, db_port, db_name)
     logging.debug(
-        f"Подключение к базе данных по адресу {sqlalchemy_database_url}")
+        f"Connect to database {sqlalchemy_database_url}")
 
     engine = sa.create_engine(sqlalchemy_database_url, echo=False)
     __factory = orm.sessionmaker(bind=engine)

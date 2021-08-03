@@ -17,7 +17,11 @@ router = APIRouter()
 
 
 @router.get("/get_last_images", status_code=status.HTTP_200_OK)
-async def get_last_images():
+async def get_last_images() -> JSONResponse:
+    """
+    Returns a list with the last three uploaded images
+    :return JSONResponse:
+    """
     db = db_session.global_init(**DATABASES)
     last_images = db.query(Image).order_by(desc(Image.pub_date)).limit(3).all()
     json_compatible_item_data = jsonable_encoder(last_images)
@@ -26,7 +30,19 @@ async def get_last_images():
 
 
 @router.post("/negative_image", status_code=status.HTTP_201_CREATED)
-def negative_image(base64_image: str = Form(...)):
+def negative_image(base64_image: str = Form(...)) -> JSONResponse:
+    """
+    Checks the type of the received image (JPEG, PNG are available -
+    the full list can be configured in settings.VALID_EXTENSIONS set).
+    In the case of a correct file, it performs a conversion to a negative
+    and saves both images to the database row with the following fields:
+    image.original - str base64
+    image.negative - str base64
+    image.type - str
+
+    :param base64_image:
+    :return JSONResponse:
+    """
     decoded_string = base64.b64decode(base64_image)
     extension = imghdr.what(None, h=decoded_string)
     if extension not in VALID_EXTENSIONS:
