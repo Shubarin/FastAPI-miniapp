@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="row row-cols-2 row-cols-md-2 g-4">
+    {% for image in last_images %}
+    {% with image=image %}
+        {% include 'includes/card.html' %}
+    {% endwith %}
+    {% endfor %}
+</div>
+{% endblock %}
