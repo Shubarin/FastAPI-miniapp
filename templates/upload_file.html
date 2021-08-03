@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container">
+    <form action="/negative_image/" enctype="multipart/form-data" method="post">
+        <div class="input-group mb-3">
+            <input type="file" name="upload_file" class="form-control"
+                   id="inputGroupFile02" accept="image/png, image/jpeg">
+            <label class="input-group-text"
+                   for="inputGroupFile02">Upload</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+</div>
+{% endblock %}

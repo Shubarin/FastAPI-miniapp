@@ -1,0 +1,18 @@
+<div class="col">
+    <div class="card">
+        <img src={{ url_for('static', path=image.original) }} class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title">Original</h5>
+            <p class="card-text">{{ image.pub_date }}</p>
+        </div>
+    </div>
+</div>
+<div class="col">
+    <div class="card">
+        <img src={{ url_for('static', path=image.negative) }} class="card-img-top" alt="...">
+        <div class="card-body">
+            <h5 class="card-title">Negative image</h5>
+            <p class="card-text">{{ image.pub_date }}</p>
+        </div>
+    </div>
+</div>
