@@ -1,8 +1,7 @@
 import base64
-import json
 
 from fastapi import FastAPI, File, Request
-from fastapi.responses import HTMLResponse
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import desc
 
@@ -20,7 +19,12 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 
 @app.get("/get_last_images/")
 @app.get("/")
-async def get_last_images(request: Request) -> json:
+async def get_last_images(request: Request) -> templates.TemplateResponse:
+    """
+    Returns an html template with the last three uploaded images
+    :param request:
+    :return templates.TemplateResponse:
+    """
     db = db_session.global_init(**DATABASES)
     last_images = db.query(Image).order_by(desc(Image.pub_date)).limit(3).all()
     return templates.TemplateResponse("index.html",
@@ -31,11 +35,21 @@ async def get_last_images(request: Request) -> json:
 
 
 @app.post("/negative_image/")
-async def negative_image(upload_file: bytes = File(...)):
+async def negative_image(upload_file: bytes = File(...)) -> JSONResponse:
+    """
+    Returns the result of converting an image to a negative
+    :param upload_file:
+    :return JSONResponse:
+    """
     return api_negative_images(base64.b64encode(upload_file).decode('ascii'))
 
 
 @app.get("/negative_image/", response_class=HTMLResponse)
-async def negative_image(request: Request):
+async def negative_image(request: Request) -> templates.TemplateResponse:
+    """
+    Page for uploading an image
+    :param request:
+    :return templates.TemplateResponse:
+    """
     return templates.TemplateResponse("upload_file.html",
                                       context={"request": request})
