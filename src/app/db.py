@@ -1,17 +1,10 @@
 import os
 
-from sqlalchemy import (
-    Column,
-    DateTime,
-    Integer,
-    MetaData,
-    String,
-    Table,
-    create_engine
-)
 import sqlalchemy.ext.declarative as dec
-from sqlalchemy.sql import func
 from databases import Database
+from sqlalchemy import (Column, DateTime, Integer, MetaData, String, Table,
+                        create_engine)
+from sqlalchemy.sql import func
 
 SqlAlchemyBase = dec.declarative_base()
 DATABASE_URL = os.getenv("DATABASE_URL")
