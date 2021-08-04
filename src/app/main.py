@@ -52,6 +52,8 @@ async def get_last_images(request: Request) -> templates.TemplateResponse:
 @app.post("/negative_image/")
 async def negative_image(upload_file: bytes = File(...)) -> JSONResponse:
     """
+    Received image (JPEG, PNG are available -
+    the full list can be configured in settings.VALID_EXTENSIONS set).
     Returns the result of converting an image to a negative
     :param upload_file:
     :return JSONResponse:
