@@ -8,12 +8,12 @@ def test_get_index_page_check_status_code_equals_200(test_app):
     :return:
     """
     resources = (
-        '/', '/get_last_images'
+        "/", "/get_last_images"
     )
     for resource in resources:
         response = test_app.get(resource)
-        assert response.status_code == 200, f'{resource} status:' \
-                                            f' {response.status_code} != 200'
+        assert response.status_code == 200, (f"{resource} status: "
+                                             f"{response.status_code} != 200")
 
 
 def test_get_negative_image_page_check_status_code_equals_200(test_app):
@@ -22,10 +22,10 @@ def test_get_negative_image_page_check_status_code_equals_200(test_app):
     :param test_app:
     :return:
     """
-    resource = '/negative_image'
+    resource = "/negative_image"
     response = test_app.get(resource)
-    assert response.status_code == 200, f'{resource} status:' \
-                                        f' {response.status_code} != 200'
+    assert response.status_code == 200, (f"{resource} status: "
+                                         f"{response.status_code} != 200")
 
 
 def test_api_get_latest_images_check_status_code_equals_200(test_app):
@@ -34,10 +34,10 @@ def test_api_get_latest_images_check_status_code_equals_200(test_app):
     :param test_app:
     :return:
     """
-    resource = f'{API_PREFIX}/get_last_images'
+    resource = f"{API_PREFIX}/get_last_images"
     response = test_app.get(resource)
-    assert response.status_code == 200, f'{resource} status:' \
-                                        f' {response.status_code} != 200'
+    assert response.status_code == 200, (f"{resource} status: "
+                                         f"{response.status_code} != 200")
 
 
 def test_api_get_negative_image_check_status_code_equals_405(test_app):
@@ -46,7 +46,7 @@ def test_api_get_negative_image_check_status_code_equals_405(test_app):
     :param test_app:
     :return:
     """
-    resource = f'{API_PREFIX}/negative_image'
+    resource = f"{API_PREFIX}/negative_image"
     response = test_app.get(resource)
-    assert response.status_code == 405, f'{resource} status:' \
-                                        f' {response.status_code} != 405'
+    assert response.status_code == 405, (f"{resource} status: "
+                                         f"{response.status_code} != 405")
