@@ -38,29 +38,29 @@ async def get_last_images(request: Request) -> templates.TemplateResponse:
     """
     conn = engine.connect()
     last_images = conn.execute(
-        'SELECT * FROM images '
-        'ORDER BY pub_date DESC '
-        'LIMIT 3;'
+        "SELECT * FROM images "
+        "ORDER BY pub_date DESC "
+        "LIMIT 3;"
     ).fetchall()
-    return templates.TemplateResponse("index.html",
-                                      context={
-                                          "request": request,
-                                          "last_images": last_images
-                                      })
+    return templates.TemplateResponse(
+        "index.html", context={"request": request,
+                               "last_images": last_images})
 
 
-@app.post("/negative_image/")
-async def negative_image(upload_file: bytes = File(...)) -> JSONResponse:
+@app.post("/negative_image")
+async def negative_image_post(upload_file: bytes = File(...)) -> JSONResponse:
     """
+    Received image (JPEG, PNG are available -
+    the full list can be configured in settings.VALID_EXTENSIONS set).
     Returns the result of converting an image to a negative
     :param upload_file:
     :return JSONResponse:
     """
-    return api_negative_images(base64.b64encode(upload_file).decode('ascii'))
+    return api_negative_images(base64.b64encode(upload_file).decode("ascii"))
 
 
-@app.get("/negative_image/", response_class=HTMLResponse)
-async def negative_image(request: Request) -> templates.TemplateResponse:
+@app.get("/negative_image", response_class=HTMLResponse)
+async def negative_image_get(request: Request) -> templates.TemplateResponse:
     """
     Page for uploading an image
     :param request:

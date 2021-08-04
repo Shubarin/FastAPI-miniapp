@@ -5,7 +5,7 @@ from io import BytesIO
 from fastapi import APIRouter, Form, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
-from PIL import Image as im
+from PIL import Image as Im
 
 from ...db import engine, images
 from ...settings import VALID_EXTENSIONS
@@ -22,9 +22,9 @@ async def get_last_images() -> JSONResponse:
     """
     conn = engine.connect()
     last_images = conn.execute(
-        'SELECT * FROM images '
-        'ORDER BY pub_date DESC '
-        'LIMIT 3;'
+        "SELECT * FROM images "
+        "ORDER BY pub_date DESC "
+        "LIMIT 3;"
     ).fetchall()
     json_compatible_item_data = jsonable_encoder(last_images)
     return JSONResponse(status_code=status.HTTP_200_OK,
@@ -49,9 +49,9 @@ def negative_image(base64_image: str = Form(...)) -> JSONResponse:
     extension = imghdr.what(None, h=decoded_string)
     if extension not in VALID_EXTENSIONS:
         return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                            content={'error': 'bad file extensions'})
-    original = im.open(BytesIO(decoded_string))
-    inverted = im.eval(original, lambda x: 255 - x)
+                            content={"error": "bad file extensions"})
+    original = Im.open(BytesIO(decoded_string))
+    inverted = Im.eval(original, lambda x: 255 - x)
     original = img_to_base64_str(original, extension)
     inverted = img_to_base64_str(inverted, extension)
 
