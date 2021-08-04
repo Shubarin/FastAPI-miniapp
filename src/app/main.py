@@ -3,15 +3,26 @@ import base64
 from fastapi import FastAPI, File, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import desc
 
-from api.api import api_router
-from api.endpoints.images import negative_image as api_negative_images
-from data import db_session
-from data.images import Image
-from settings import API_PREFIX, DATABASES, TEMPLATES_DIR
+from .api.api import api_router
+from .api.endpoints.images import negative_image as api_negative_images
+from .db import database, engine, metadata
+from .settings import API_PREFIX, TEMPLATES_DIR
 
 app = FastAPI()
+
+metadata.create_all(engine)
+
+
+@app.on_event("startup")
+async def startup():
+    await database.connect()
+
+
+@app.on_event("shutdown")
+async def shutdown():
+    await database.disconnect()
+
 
 app.include_router(api_router, prefix=API_PREFIX)
 templates = Jinja2Templates(directory=TEMPLATES_DIR)
@@ -25,8 +36,12 @@ async def get_last_images(request: Request) -> templates.TemplateResponse:
     :param request:
     :return templates.TemplateResponse:
     """
-    db = db_session.global_init(**DATABASES)
-    last_images = db.query(Image).order_by(desc(Image.pub_date)).limit(3).all()
+    conn = engine.connect()
+    last_images = conn.execute(
+        'SELECT * FROM images '
+        'ORDER BY pub_date DESC '
+        'LIMIT 3;'
+    ).fetchall()
     return templates.TemplateResponse("index.html",
                                       context={
                                           "request": request,

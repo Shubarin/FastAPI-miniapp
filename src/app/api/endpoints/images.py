@@ -6,12 +6,10 @@ from fastapi import APIRouter, Form, status
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from PIL import Image as im
-from sqlalchemy import desc
 
-from data import db_session
-from data.images import Image
-from settings import DATABASES, VALID_EXTENSIONS
-from utils.converter_img_to_base64_str import img_to_base64_str
+from ...db import engine, images
+from ...settings import VALID_EXTENSIONS
+from ...utils.converter_img_to_base64_str import img_to_base64_str
 
 router = APIRouter()
 
@@ -22,8 +20,12 @@ async def get_last_images() -> JSONResponse:
     Returns a list with the last three uploaded images
     :return JSONResponse:
     """
-    db = db_session.global_init(**DATABASES)
-    last_images = db.query(Image).order_by(desc(Image.pub_date)).limit(3).all()
+    conn = engine.connect()
+    last_images = conn.execute(
+        'SELECT * FROM images '
+        'ORDER BY pub_date DESC '
+        'LIMIT 3;'
+    ).fetchall()
     json_compatible_item_data = jsonable_encoder(last_images)
     return JSONResponse(status_code=status.HTTP_200_OK,
                         content={"last_images": json_compatible_item_data})
@@ -50,14 +52,13 @@ def negative_image(base64_image: str = Form(...)) -> JSONResponse:
                             content={'error': 'bad file extensions'})
     original = im.open(BytesIO(decoded_string))
     inverted = im.eval(original, lambda x: 255 - x)
-    db_sess = db_session.global_init(**DATABASES)
     original = img_to_base64_str(original, extension)
     inverted = img_to_base64_str(inverted, extension)
-    image = Image(original=original, negative=inverted, type=extension)
-    db_sess.add(image)
-    db_sess.commit()
+
+    conn = engine.connect()
+    inserted = images.insert().values(original=original,
+                                      negative=inverted,
+                                      type=extension)
+    conn.execute(inserted)
     return JSONResponse(status_code=status.HTTP_201_CREATED,
-                        content={"id": image.id,
-                                 "type": image.type,
-                                 "original": image.original,
-                                 "negative": image.negative})
+                        content=inserted.compile().params)
