@@ -8,6 +8,7 @@ API and UI for convert image to negative
 
 
 ### Start application
+Rename `src/.env.example` to `src/.env`    
 Get latest docker & docker-compose:  
 https://www.docker.com/  
 https://docs.docker.com/compose/  
