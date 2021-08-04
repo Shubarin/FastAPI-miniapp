@@ -1,4 +1,4 @@
-from settings import API_PREFIX
+from ..app.settings import API_PREFIX
 
 
 def test_get_index_page_check_status_code_equals_200(test_app):
