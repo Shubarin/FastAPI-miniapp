@@ -1,6 +1,6 @@
 from fastapi import APIRouter
 
-from api.endpoints import images
+from .endpoints import images
 
 api_router = APIRouter()
 api_router.include_router(images.router, tags=["images"])
